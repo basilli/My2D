@@ -16,6 +16,8 @@ namespace My2D
         public static string isCelling = "IsCelling";
         public static string isWall = "IsWall";
 		public static string attackTrigger = "Attack";
+		public static string cannotMove = "CannotMove";
+		public static string hasTarget = "HasTarget";
     }
 }
 
@@ -23,3 +25,4 @@ namespace My2D
 // [2] 
 // [3] 
 // [ ] - ) 
+// [ ] - [ ] - ) 

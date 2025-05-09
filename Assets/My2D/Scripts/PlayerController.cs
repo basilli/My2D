@@ -73,7 +73,13 @@ namespace My2D
         {
             get
             {
-                // ) 인풋값이 들어왔을 때 & 벽에 부짇히지않았을 때.
+                // ) 공격시 이동 제어.
+                if (CanNotMove)
+                {
+                    return 0f;
+                }
+
+                // ) 인풋값이 들어왔을 때 & 벽에 부딪히지않았을 때.
                 if (IsMoving && touchingDirection.IsWall == false)
                 {
                     if (touchingDirection.IsGround)     // ) 땅에 있을 때.
@@ -98,9 +104,6 @@ namespace My2D
                 }
             }
         }
-
-
-
         // [ ] - 4) 반전이동.
         public bool IsFacingRight
         {
@@ -118,6 +121,16 @@ namespace My2D
                 isFacingRight = value;
             }
         }
+        // [ ] - 5) 공격시 이동 제어값 읽어오기.
+        public bool CanNotMove
+        {
+            get 
+            {
+                return animator.GetBool(AnimationString.cannotMove);
+            }
+        }
+
+
         #endregion
 
 
@@ -134,7 +147,7 @@ namespace My2D
         private void FixedUpdate()
         {
             // [ ] - [ ] - 1) 인풋값에 따라 플레이어 좌우 이동. 
-            rb2D.linearVelocity = new Vector2(inputMove.x*walkSpeed, rb2D.linearVelocityY);
+            rb2D.linearVelocity = new Vector2(inputMove.x*CurrentSpeed, rb2D.linearVelocityY);
             // [ ] - [ ] - 2) 애니메이터 속도값 세팅.
             animator.SetFloat(AnimationString.yVelocity, rb2D.linearVelocityY);
         }
