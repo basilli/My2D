@@ -18,7 +18,9 @@ namespace My2D
         public Animator animator;
         // [ ] - 3) 그라운드, 벽 체크.
         private TouchingDirection touchingDirection;
-        // [ ] - 4) 이동.
+        // [ ] - 4) 데미지 입기.
+        private Damageable damageable;
+        // [ ] - 5) 이동.
         // [ ] - [ ] - 1) 걷는 속도 → 좌,우로 걸음.
         [SerializeField] private float walkSpeed = 4f;
         // [ ] - [ ] - 2) 뛰는 속도 → 좌,우로 뜀.
@@ -31,10 +33,10 @@ namespace My2D
         private bool isMoving = false;
         // [ ] - [ ] - 6) 런 키입력.
         private bool isRunning = false;
-        // [ ] - 5) 반전.
+        // [ ] - 6) 반전.
         // [ ] - [ ] - 1) 캐릭터 이미지가 바라보는 방향 상태 : 오른쪽을 바라보면 true.
         private bool isFacingRight = true;
-        // [ ] - 6) 점프키를 눌렀을 때 위로 올라가는 속도값. 
+        // [ ] - 7) 점프키를 눌렀을 때 위로 올라가는 속도값. 
         [SerializeField] private float jumpForce = 5f;
         #endregion
 
@@ -129,7 +131,8 @@ namespace My2D
                 return animator.GetBool(AnimationString.cannotMove);
             }
         }
-
+        // [ ] - 6) 죽음 체크.
+        public bool IsDeath => animator.GetBool(AnimationString.isDeath);
 
         #endregion
 
@@ -142,12 +145,19 @@ namespace My2D
         {
             rb2D = this.GetComponent<Rigidbody2D>();
             touchingDirection = this.GetComponent<TouchingDirection>();
+            damageable = this.GetComponent<Damageable>();
+            // [ ] - [ ] - 1) 델리게이트 함수 등록.
+            damageable.hitAction += OnHit;
         }
         // [ ] - 2) FixedUpdate.
         private void FixedUpdate()
         {
-            // [ ] - [ ] - 1) 인풋값에 따라 플레이어 좌우 이동. 
-            rb2D.linearVelocity = new Vector2(inputMove.x*CurrentSpeed, rb2D.linearVelocityY);
+            // [ ] - [ ] - 1) 인풋값에 따라 플레이어 좌우 이동.
+            if (damageable.LockVelocity == false)
+            {
+                rb2D.linearVelocity = new Vector2(inputMove.x * CurrentSpeed, rb2D.linearVelocityY);
+            }
+
             // [ ] - [ ] - 2) 애니메이터 속도값 세팅.
             animator.SetFloat(AnimationString.yVelocity, rb2D.linearVelocityY);
         }
@@ -161,10 +171,17 @@ namespace My2D
         public void OnMove(InputAction.CallbackContext context)
         {
             inputMove = context.ReadValue<Vector2>();
-            // [ ] - [ ] - 1) 입력값에 따른 반전.
-            SetFacingDirection(inputMove);
-            // [ ] - [ ] - 2) 인풋값이 들어오면 IsMoving 파라미터 세팅.
-            IsMoving = (inputMove != Vector2.zero);
+            if (IsDeath == false)
+            {
+                // [ ] - [ ] - 1) 입력값에 따른 반전.
+                SetFacingDirection(inputMove);
+                // [ ] - [ ] - 2) 인풋값이 들어오면 IsMoving 파라미터 세팅.
+                IsMoving = (inputMove != Vector2.zero);
+            }
+            else
+            {
+                IsMoving = false;
+            }
         }
         // [ ] - 2) OnRun.
         public void OnRun(InputAction.CallbackContext context)
@@ -211,8 +228,14 @@ namespace My2D
                 animator.SetTrigger(AnimationString.attackTrigger);
             }
         }
-            #endregion
+        // [ ] - 6) 데미지 입을 때 호출되는 함수 → 데미지를 입을 때의 속도 셋팅.
+        public void OnHit(float damage, Vector2 knockback)
+        {
+            rb2D.linearVelocity = new Vector2(knockback.x, rb2D.linearVelocityY +knockback.y);
         }
+
+        #endregion
+    }
 }
 
 // [ ] - ) 

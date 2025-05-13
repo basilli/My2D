@@ -29,16 +29,20 @@ namespace My2D
         public Animator animator;
         // [ ] - 3) 플레이어 감지.
         public DetectionZone detectionZone;
-        // [ ] - 4) 이동.
+        // [ ] - 4) .
+        public Damageable damageable;
+        // [ ] - 5) 낭떠러지 탐색.
+        public DetectionZone cliffDetection;
+        // [ ] - 6) 이동.
         // [ ] - [ ] - 1) 속도.
         [SerializeField] private float walkSpeed = 4f;
         // [ ] - [ ] - 2) 방향 Vector.
         private Vector2 directionVector = Vector2.right;
         // [ ] - [ ] - 3) 현재 이동 방향을 저장.
         private WalkableDirection walkDirection = WalkableDirection.Right;
-        // [ ] - 5) 정지.
+        // [ ] - 7) 정지.
         private float stopRate = 0.2f;
-        // [ ] - 6) 적 감지.
+        // [ ] - 8) 적 감지.
         private bool hasTarget;
         #endregion
 
@@ -94,6 +98,18 @@ namespace My2D
                 animator.SetBool(AnimationString.hasTarget, value);
             }
         }
+        // [ ] - 4) 공격 쿨타임 → 읽어서 0보다 크면 3초 타이머를 돌려서 0으로 다시 파라미터 값을 셋팅.
+        public float CooldownTime
+        {
+            get
+            {
+                return animator.GetFloat(AnimationString.cooldownTime);
+            }
+            set
+            {
+                animator.SetFloat(AnimationString.cooldownTime, value);
+            }
+        }
         #endregion
 
 
@@ -103,15 +119,26 @@ namespace My2D
         // [ ] - 1) Awake.
         private void Awake()
         {
+
             // [ ] - [ ] - 1) 참조.
             rb2D = this.GetComponent<Rigidbody2D>();
             touchingDirection = this.GetComponent<TouchingDirection>();
+            damageable = this.GetComponent<Damageable>();
+            // [ ] - [ ] - 2) 델리게이트 함수 등록.
+            damageable.hitAction += OnHit;
+            // [ ] - [ ] - 3) CliffDetection 이벤트 함수 등록.
+            cliffDetection.noColliderRamain += Flip;
         }
         // [ ] - 2) Update.
         private void Update()
         {
             // [ ] - [ ] - 1) 적 감지.
             HasTarget = (detectionZone.detectedColliders.Count > 0);
+            // [ ] - [ ] - 2) CooldownTimer.
+            if (CooldownTime > 0)
+            {
+                CooldownTime -= Time.deltaTime;
+            }
         }
         // [ ] - 3) FixedUpdate.
         private void FixedUpdate()
@@ -122,13 +149,16 @@ namespace My2D
                 Flip();
             }
             // [ ] - [ ] - 2) 좌우 이동. 
-            if (CannotMove)
+            if (damageable.LockVelocity == false)
             {
-                rb2D.linearVelocity = new Vector2(Mathf.Lerp(rb2D.linearVelocityX, 0f, stopRate), rb2D.linearVelocityY);
-            }
-            else
-            {
-                rb2D.linearVelocity = new Vector2(directionVector.x * walkSpeed, rb2D.linearVelocityY);
+                if (CannotMove)
+                {
+                    rb2D.linearVelocity = new Vector2(Mathf.Lerp(rb2D.linearVelocityX, 0f, stopRate), rb2D.linearVelocityY);
+                }
+                else
+                {
+                    rb2D.linearVelocity = new Vector2(directionVector.x * walkSpeed, rb2D.linearVelocityY);
+                }
             }
         }
         #endregion
@@ -153,6 +183,11 @@ namespace My2D
             {
                 Debug.Log("방향전환 에러");
             }
+        }
+        // [ ] - 2) 데미지 입을 때 호출되는 함수 → 데미지를 입을 때의 속도 셋팅..
+        public void OnHit(float damage, Vector2 knockback)
+        {
+            rb2D.linearVelocity = new Vector2(knockback.x, rb2D.linearVelocityY + knockback.y);
         }
         #endregion
     }

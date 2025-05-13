@@ -1,35 +1,37 @@
 using UnityEngine;
 
-/* [0] 개요 : SetBoolBehaviour
-		- Animator의 Bool형을 말함 → Bool형 타입 파라미터 변수를 관리하는 클래스.
+/* [0] 개요 : SetFloatBehaviour
+		- Float형 타입 파라미터 변수를 관리하는 클래스.
 		- 상태(상태머신)에 들어갈 때와 나올 때 값을 설정해줌.
 */
 
 namespace My2D
 {
-
-    public class SetBoolBehaviour : StateMachineBehaviour
+    public class SetFloatBehaviour : StateMachineBehaviour
     {
         // [1] Variables.
         #region Variables
         // [ ] - 1) 값을 설정할 파라미터 이름.
-        public string boolName;
-        // [ ] - 2) 작동하는 상태, 상태머신 체크.
-        public bool updateOnstate;
-        public bool updateOnstateMachine;
-        // [ ] - 3) 들어갈 때와 나올 때의 값 설정.
-        public bool valueEnter;
-        public bool valueExit;
+        public string floatName;
+        // [ ] - 2) 작동하는 상태의 들어갈 때와 나올 때 체크.
+        public bool updateOnStateEnter;
+        public bool updateOnStateExit;
+        // [ ] - 3) 작동하는 상태머신의 들어갈 때와 나올 때 체크.
+        public bool updateOnStateMachineEnter;
+        public bool updateOnStateMachineExit;
+        // [ ] - 4) 들어갈 때와 나올 때의 값 설정.
+        public float valueEnter;
+        public float valueExit;
         #endregion
 
 
 
-        // [2] OnStateEnter.
+        // [2] 
         override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (updateOnstate)
+            if (updateOnStateEnter)
             {
-                animator.SetBool(boolName, valueEnter);
+                animator.SetFloat(floatName, valueEnter);
             }
         }
 
@@ -41,15 +43,14 @@ namespace My2D
 
 
 
-        // [3] OnStateExit.
+        // [3] 
         override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (updateOnstate)
+            if (updateOnStateExit)
             {
-                animator.SetBool(boolName, valueExit);
+                animator.SetFloat(floatName, valueExit);
             }
         }
-
         // OnStateMove is called before OnStateMove is called on any state inside this state machine
         //override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         //{
@@ -64,30 +65,30 @@ namespace My2D
 
 
 
-        // [4] OnStateMachineEnter.
+        // [4] 
         override public void OnStateMachineEnter(Animator animator, int stateMachinePathHash)
         {
-            if (updateOnstateMachine)
+            if (updateOnStateMachineEnter)
             {
-                animator.SetBool(boolName, valueEnter);
+                animator.SetFloat(floatName, valueEnter);
             }
         }
 
 
 
-        // [5] OnStateMachineExit.
+        // [5] 
         override public void OnStateMachineExit(Animator animator, int stateMachinePathHash)
         {
-            if (updateOnstateMachine)
+            if (updateOnStateMachineExit)
             {
-                animator.SetBool(boolName, valueExit);
+                animator.SetFloat(floatName, valueExit);
             }
         }
     }
 }
 
+// [1] 
 
-
-
+// [3] 
 // [ ] - ) 
 // [ ] - [ ] - )
